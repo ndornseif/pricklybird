@@ -286,7 +286,7 @@ def calculate_crc8(data: bytearray, polynominal: int) -> bytearray:
 
 def bytes_to_words(data: bytearray) -> list[str]:
     """
-    Return a string with each input byte mapped to the corresponding pricklybird word"
+    Return a string with each input byte mapped to the corresponding pricklybird word."
 
     ## Usage
     >>> bytes_to_words(bytearray([1, 2, 3, 4]))
@@ -338,7 +338,7 @@ def convert_from_pricklybird(words: str, ignore_crc: bool = False) -> bytearray:
     bytearray(b'\x01\x02\x03\x04')
     """
     if not words.strip():
-        raise ValueError("Empty input string")
+        raise ValueError("Empty input string.")
 
     word_list = words.split("-")
     if len(word_list) < 2:  # Need at least data + CRC
