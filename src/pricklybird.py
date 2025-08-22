@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-"""
-Functions to generate pricklybird codes from arbitrary binary data.
+"""Functions to generate pricklybird codes from arbitrary binary data.
+
 Will run selftest when executed as a script.
 """
 
@@ -267,10 +267,16 @@ WORDLIST = [
 REVERSE_WORDLIST: dict[str, int] = {word: i for i, word in enumerate(WORDLIST)}
 
 
+class DecodeError(Exception):
+    """Unable to decode pricklybird words."""
+
+
+class CRCError(DecodeError):
+    """Invalid CRC detected while decoding."""
+
+
 def calculate_crc8(data: bytearray, polynominal: int) -> bytearray:
-    """
-    Calculate CRC-8 checksum for the given bytearray.
-    """
+    """Calculate CRC-8 checksum for the given bytearray."""
     crc = 0
     for byte in data:
         crc ^= byte
@@ -285,8 +291,7 @@ def calculate_crc8(data: bytearray, polynominal: int) -> bytearray:
 
 
 def bytes_to_words(data: bytearray) -> list[str]:
-    """
-    Return a string with each input byte mapped to the corresponding pricklybird word."
+    """Return a string with each input byte mapped to matching pricklybird word.
 
     ## Usage
     >>> bytes_to_words(bytearray([1, 2, 3, 4]))
@@ -296,8 +301,7 @@ def bytes_to_words(data: bytearray) -> list[str]:
 
 
 def convert_to_pricklybird(data: bytearray) -> str:
-    """
-    Convert arbitrary data to pricklybird words and attach CRC.
+    """Convert arbitrary data to pricklybird words and attach CRC.
 
     The attached CRC is a CRC-8 with polynominal 0x07.
     The words are sperated using a colon `-`.
@@ -310,51 +314,48 @@ def convert_to_pricklybird(data: bytearray) -> str:
 
 
 def words_to_bytes(words: list[str]) -> bytearray:
-    """
-    Map a list of pricklybird words to their coresponding bytes.
+    r"""Map a list of pricklybird words to their coresponding bytes.
 
     ## Usage
-    >>> words_to_bytes(['evil', 'lady', 'chip', 'tutu'])
+    >>> words_to_bytes(["evil", "lady", "chip", "tutu"])
     bytearray(b'\x01\x02\x03\x04')
     """
     data = bytearray(len(words))
     for i, word in enumerate(words):
         index = REVERSE_WORDLIST.get(word)
         if index is None:
-            raise ValueError(f"{word} at index {i} is not a valid pricklybird keyword.")
+            error_msg = f"{word} at index {i} is not a valid pricklybird keyword."
+            raise DecodeError(error_msg)
         data[i] = index
     return data
 
 
 def convert_from_pricklybird(words: str, ignore_crc: bool = False) -> bytearray:
-    """
-    Convert pricklybird words to bytearray and check CRC.
+    r"""Convert pricklybird words to bytearray and check CRC.
 
     Setting `ignore_crc` to True will ignore an incorrect CRC
-    otherwise it raises a `ValueError`.
+    otherwise it raises a `CRCError`.
 
     ## Usage
-    >>> convert_from_pricklybird('evil-lady-chip-tutu-hull')
+    >>> convert_from_pricklybird("evil-lady-chip-tutu-hull")
     bytearray(b'\x01\x02\x03\x04')
     """
     if not words.strip():
-        raise ValueError("Empty input string.")
+        raise DecodeError("Empty input string.")
 
     word_list = words.split("-")
     if len(word_list) < 2:  # Need at least data + CRC
-        raise ValueError("Input to short, must contain at least 2 words.")
+        raise DecodeError("Input to short, must contain at least 2 words.")
 
     data = words_to_bytes(word_list)
     if not ignore_crc and calculate_crc8(data, 0x07) != b"\x00":
-        raise ValueError("Invalid CRC while decoding words.")
+        raise CRCError("Invalid CRC while decoding words.")
     return data[:-1]
 
 
-def selftest(seed: int = 1) -> int:
+def _selftest(seed: int = 1) -> int:
     def generate_test_data(seed: int) -> bytearray:
-        """
-        Implementation of Lehmer64 PRNG.
-        """
+        """Implement the Lehmer64 PRNG."""
         state = seed & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         multiplier = 0xDA942042E4DD58BA
         for _ in range(128):
@@ -406,4 +407,4 @@ def selftest(seed: int = 1) -> int:
 if __name__ == "__main__":
     import sys
 
-    sys.exit(selftest())
+    sys.exit(_selftest())
