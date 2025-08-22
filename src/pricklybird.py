@@ -11,7 +11,7 @@ WORDLIST = [
     "lady",
     "chip",
     "tutu",
-    "ebay",
+    "read",
     "plot",
     "rage",
     "cold",
