@@ -3,6 +3,13 @@
 """Functions to generate pricklybird codes from arbitrary binary data.
 
 Will run selftest when executed as a script.
+
+Copyright (c) 2025 N. Dornseif
+
+Licensed under the MIT license
+<LICENSE or https://opensource.org/licenses/MIT>.
+This file may not be copied, modified, or distributed
+except according to those terms.
 """
 
 WORDLIST = [
