@@ -1,5 +1,5 @@
 # pricklybird
-Convert binary data into a human friendly from.
+Convert binary data into a human friendly format.
 
 ## Overview
 Binary data like encryption keys, wallet addresses and hash digests are most 
@@ -21,15 +21,15 @@ characters.
 The entire wordlist has 256 entries and is 1024 bytes long if not including null terminators.
 It can be found in the [wordlist](wordlist.txt) file. The words appear in order
 and are separated by newlines, meaning that the first word corresponds to a 
-byte value of `0x00`, the second to `0x01`, and so on.
+byte value of `0x00`, the second to `0x01`, continuing this pattern until the 256th word that corresponds to `0xFF`.
 
 ## Specification
-The binary data to be transmitted must be supplied as whole bytes.
-A CRC-8 checksum with polynomial `0x07` is calculated over the input.
-This checksum is then appended to the input as an additional byte.
-A string is constructed where for each byte of input, including the CRC,
-the corresponding word is looked up in the wordlist and appended.
-The words in the output are separated by a Hyphen-Minus character (`-`).
+The binary data `b` to be transmitted must be supplied in multiples of eight bits (bytes).
+A CRC-8 checksum `c` with polynomial `0x07` is calculated over `b`.
+`c` is then appended to `b`.
+An output string `s` is constructed. For each byte in the extended data (`b` with `c` appended), 
+the corresponding word from the wordlist is added to `s`. 
+Each word, except the last one, is immediately followed by a Hyphen-Minus character (`-``).
 
 ## Implementation
 Reference implementations in the following programming languages can be found
