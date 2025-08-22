@@ -275,7 +275,7 @@ class CRCError(DecodeError):
     """Invalid CRC detected while decoding."""
 
 
-def calculate_crc8(data: bytearray, polynominal: int) -> bytearray:
+def calculate_crc8(data: bytearray, polynominal: int) -> bytes:
     """Calculate CRC-8 checksum for the given bytearray."""
     crc = 0
     for byte in data:
