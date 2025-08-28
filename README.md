@@ -30,7 +30,6 @@ It can be found in the [wordlist](wordlist.txt) file. The words appear in order
 and are separated by newlines, meaning that the first word corresponds to a 
 byte value of `0x00`, the second to `0x01`, continuing this pattern until the 256th word, which corresponds to `0xFF`.
 The wordlist is sorted alphabetically, meaning the byte values are assigned in alphabetical order.
-This allows binary search of the wordlist.
 
 ## Specification
 
@@ -59,7 +58,7 @@ These tests were performed with the expected error scenarios of two adjacent byt
 ### Conversion to pricklybird format
 
 - The binary data `b` to be converted must be supplied in multiples of eight bits (bytes)
-- If the length of `b` is zero, an empty string should be returned.
+- If the length of `b` is zero, an empty string must be returned.
 - A CRC checksum `c` with the previously defined parameters is calculated over `b`
 - `c` is then appended to `b` to obtain the intermediate binary data `i`
 - An output string `s` is constructed.
@@ -71,7 +70,7 @@ the corresponding word from the wordlist is added to `s`
 
 ### Conversion from pricklybird format
 
-- If the input string `s` is empty the implementation should report an error.
+- If the input string `s` is empty the implementation must report an error.
 - `s` is split into a list of words `l` at every Hyphen-Minus character (-)
 - If `l` is shorter than two words the input is invalid, since with checksum attached, every
 pricklybird value must be at least two words long. The implementation must stop decoding at this point 
