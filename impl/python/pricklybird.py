@@ -12,12 +12,11 @@ This file may not be copied, modified, or distributed
 except according to those terms.
 """
 
-from typing import Callable, Union
 import unittest
 
 from pricklybird_wordlist import WORDLIST
 
-type BytesLike = Union[bytes, bytearray]
+type BytesLike = bytes | bytearray
 
 
 def word_hash(word_first_letter: str, word_last_letter: str) -> int:
@@ -201,45 +200,55 @@ def convert_from_pricklybird(words: str) -> bytearray:
 
 class PricklybirdTests(unittest.TestCase):
     """Test the conversion from and to pricklybird."""
+
     TEST_DATA_SEED = 1
     test_data = bytearray()
 
     @classmethod
     def generate_test_data(cls, seed: int) -> bytearray:
-        """Generates pseudorandom test data using the Lehmer64 LCG."""
-        OUTPUT_BYTES = 4096
-        WARMUP_ITERATIONS = 128
+        """Generate pseudorandom test data using the Lehmer64 LCG."""
+        output_bytes = 4096
+        warmup_iterations = 128
         state = seed & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         multiplier = 0xDA942042E4DD58B5
         # Mix up the state a little to compensate for potentialy small seed
-        for _ in range(WARMUP_ITERATIONS):
+        for _ in range(warmup_iterations):
             state = (state * multiplier) & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
-        result = bytearray(OUTPUT_BYTES)
-        for i in range(0, OUTPUT_BYTES, 8):
+        result = bytearray(output_bytes)
+        for i in range(0, output_bytes, 8):
             state = (state * multiplier) & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
             random_val = (state >> 64) & 0xFFFFFFFFFFFFFFFF
             result[i : i + 8] = random_val.to_bytes(8, "little")
         return result
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
+        """Generate test data using pseudorandom runction."""
         if not cls.test_data:
             cls.test_data = cls.generate_test_data(cls.TEST_DATA_SEED)
 
-    def test_vectors(self):
+    def test_vectors(self) -> None:
         """Test the standard vectors supplied with the specification."""
-        test_vectors = [(bytearray.fromhex("DEADBEEF"), "turf-port-rust-warn-void"),
-        (bytearray.fromhex("4243"), "flea-flux-full"),
-        (bytearray.fromhex("1234567890"), "blob-eggs-hair-king-meta-yell")]
+        test_vectors = [
+            (bytearray.fromhex("DEADBEEF"), "turf-port-rust-warn-void"),
+            (bytearray.fromhex("4243"), "flea-flux-full"),
+            (bytearray.fromhex("1234567890"), "blob-eggs-hair-king-meta-yell"),
+            (bytearray.fromhex("0000000000"), "acid-acid-acid-acid-acid-acid"),
+            (bytearray.fromhex("ffffffffff"), "zone-zone-zone-zone-zone-sand"),
+        ]
 
         for data, words in test_vectors:
-            with self.subTest(msg=f"Converter failed to convert {data} test vector to pricklybird."):
+            with self.subTest(
+                msg=f"Converter failed to convert {data} test vector to pricklybird."
+            ):
                 self.assertEqual(words, convert_to_pricklybird(data))
-            with self.subTest(msg=f"Converter failed to convert {words} test vector to bytes."):
+            with self.subTest(
+                msg=f"Converter failed to convert {words} test vector to bytes."
+            ):
                 self.assertEqual(data, convert_from_pricklybird(words))
 
-    def test_simple_conversion(self):
+    def test_simple_conversion(self) -> None:
         """Test conversion to and from pricklybird on pseudorandom test data."""
         coded_words = convert_to_pricklybird(self.test_data)
         self.assertEqual(
@@ -248,7 +257,7 @@ class PricklybirdTests(unittest.TestCase):
             "Converter did not correctly endcode or decode data.",
         )
 
-    def test_uppercase(self):
+    def test_uppercase(self) -> None:
         """Test that pricklybird input containing mixed case is properly decoded."""
         self.assertEqual(
             bytearray.fromhex("DEADBEEF"),
@@ -256,7 +265,7 @@ class PricklybirdTests(unittest.TestCase):
             msg="Converter did not correctly decode upercase data.",
         )
 
-    def test_error_detection(self):
+    def test_error_detection_bit_flip(self) -> None:
         """Test that replacing a pricklybird word is detected using the CRC-8."""
         coded_words = convert_to_pricklybird(self.test_data)
         corrupted_test_data = self.test_data.copy()
@@ -271,7 +280,18 @@ class PricklybirdTests(unittest.TestCase):
         ):
             convert_from_pricklybird(corrupted_words)
 
-    def test_unusual_input(self):
+    def test_error_detection_adjacent_swap(self) -> None:
+        """Check that swapping two adjacent words is detected using the CRC-8."""
+        coded_words = convert_to_pricklybird(self.test_data)
+        word_list = coded_words.split("-")
+        word_list[0], word_list[1] = word_list[1], word_list[0]
+        swapped_coded_words = "-".join(word_list)
+        with self.assertRaises(
+            CRCError, msg="Converter did not detect error caused by word swap."
+        ):
+            convert_from_pricklybird(swapped_coded_words)
+
+    def test_unusual_input(self) -> None:
         """Check that edge cases result in the correct errors."""
         test_cases = [
             ("", "Converter did not error with empty input"),
@@ -294,11 +314,13 @@ class PricklybirdTests(unittest.TestCase):
             ("zzzz-king", "Converter did not error with incorrect word in input"),
         ]
         for input_words, msg in test_cases:
-            with self.subTest(msg=f"{msg} ({input_words})."):
-                with self.assertRaises(DecodeError):
-                    convert_from_pricklybird(input_words)
+            with (
+                self.subTest(msg=f"{msg} ({input_words})."),
+                self.assertRaises(DecodeError),
+            ):
+                convert_from_pricklybird(input_words)
 
-    def test_empty_input(self):
+    def test_empty_input(self) -> None:
         """Check that empty input results in empty output."""
         self.assertEqual("", convert_to_pricklybird(bytearray()))
         self.assertEqual([], bytes_to_words(bytearray()))
@@ -306,30 +328,31 @@ class PricklybirdTests(unittest.TestCase):
 
 
 class CRC8Tests(unittest.TestCase):
+    """Check functionality of the cyclic redundancy check."""
 
-    def test_empty_input(self):
+    def test_empty_input(self) -> None:
         """Check that CRC-8 of empty input is zero."""
-        self.assertEqual(b'\x00', calculate_crc8(bytearray()));
+        self.assertEqual(b"\x00", calculate_crc8(bytearray()))
 
-
-    def test_table_lookup(self):
+    def test_table_lookup(self) -> None:
         """Check that CRC-8 of single byte is equal to the precomputed table value."""
         test_data = bytearray([0x42])
-        result = calculate_crc8(test_data)[0];
-        expected = CRC8_TABLE[test_data[0]];
+        result = calculate_crc8(test_data)[0]
+        expected = CRC8_TABLE[test_data[0]]
         self.assertEqual(
-            expected, result,
-            "CRC-8 of single byte should match table value."
+            expected, result, "CRC-8 of single byte should match table value."
         )
 
-    def test_with_appended_crc(self):
+    def test_with_appended_crc(self) -> None:
         """Check that data with appended correct CRC-8 has a CRC remainder of zero."""
         test_data = bytearray(b"Test data")
-        test_data.extend(calculate_crc8(test_data));
+        test_data.extend(calculate_crc8(test_data))
         self.assertEqual(
-            b'\x00', calculate_crc8(test_data),
-            "Data with appended correct CRC-8 should result in remainder 0."
+            b"\x00",
+            calculate_crc8(test_data),
+            "Data with appended correct CRC-8 should result in remainder 0.",
         )
+
 
 if __name__ == "__main__":
     import doctest

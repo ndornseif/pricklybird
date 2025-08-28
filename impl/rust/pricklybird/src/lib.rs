@@ -202,6 +202,7 @@ pub fn convert_from_pricklybird(words: &str) -> Result<Vec<u8>> {
     Ok(data)
 }
 
+/// Test the conversion from and to pricklybird.
 #[cfg(test)]
 mod pricklybird_tests {
     use super::*;
@@ -240,6 +241,8 @@ mod pricklybird_tests {
                 vec![0x12u8, 0x34, 0x56, 0x78, 0x90],
                 "blob-eggs-hair-king-meta-yell",
             ),
+            (vec![0u8; 5], "acid-acid-acid-acid-acid-acid"),
+            (vec![0xFFu8; 5], "zone-zone-zone-zone-zone-sand"),
         ];
 
         for (data, words) in test_vectors {
@@ -285,7 +288,7 @@ mod pricklybird_tests {
 
     /// Test that replacing a pricklybird word is detected using the CRC-8.
     #[test]
-    fn test_error_detection() {
+    fn test_error_detection_bit_flip() {
         let mut test_data = generate_test_data(TEST_DATA_SEED);
         let coded_words = convert_to_pricklybird(&test_data);
         test_data[0] ^= 1;
@@ -295,6 +298,23 @@ mod pricklybird_tests {
         assert!(
             convert_from_pricklybird(&incorrect_coded_words).is_err(),
             "Converter did not detect error in corrupted input."
+        );
+    }
+
+    /// Check that swapping two adjacent words is detected using the CRC-8.
+    #[test]
+    fn test_error_detection_adjacent_swap() {
+        let test_data = generate_test_data(TEST_DATA_SEED);
+        let coded_words = convert_to_pricklybird(&test_data);
+        let mut word_vec: Vec<&str> = coded_words.split('-').collect();
+        word_vec.swap(0, 1);
+        let swapped_coded_words = word_vec.join("-");
+        assert!(
+            matches!(
+                convert_from_pricklybird(&swapped_coded_words),
+                Err(DecodeError::CRCError)
+            ),
+            "Converter did not detect error caused by word swap."
         );
     }
 
@@ -330,6 +350,7 @@ mod pricklybird_tests {
     }
 }
 
+/// Check functionality of the cyclic redundancy check.
 #[cfg(test)]
 mod crc8_tests {
     use super::*;

@@ -116,6 +116,8 @@ A functioning implementation should be able to convert these bytes and pricklybi
 | `0xDEADBEEF`   | `turf-port-rust-warn-void`      |
 | `0x4243`       | `flea-flux-full`                |
 | `0x1234567890` | `blob-eggs-hair-king-meta-yell` |
+| `0x0000000000` | `acid-acid-acid-acid-acid-acid` |
+| `0xFFFFFFFFFF` | `zone-zone-zone-zone-zone-sand` |
 
 ## Implementations
 
