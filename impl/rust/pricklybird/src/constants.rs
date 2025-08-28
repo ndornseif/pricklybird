@@ -38,7 +38,7 @@ pub const WORDLIST: [&str; 256] = [
 /// Wordlist with words represented as four byte arrays of UTF-8, ASCII compatible in this case.
 pub const BYTE_WORDLIST: [[u8; 4]; 256] = convert_wordlist_to_bytes(&WORDLIST);
 
-/// Take wordlist from string form to UTF-8 byte array from.
+/// Take wordlist from string form to UTF-8 byte array form.
 const fn convert_wordlist_to_bytes(wordlist: &[&str; 256]) -> [[u8; 4]; 256] {
     let mut result = [[0u8; 4]; 256];
 
