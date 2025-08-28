@@ -78,9 +78,7 @@ and report the error
 - The intermediate binary data `i` is constructed by appending the corresponding byte
 according to the wordlist for each word in `l`
 - The lookup in the wordlist should be case *insensitive*.
-- If a word is found that does not appear in the wordlist the implementation must report this error and may stop decoding
-- The implementation may attempt to infer the word based on the fact that no two words in the wordlist share the
-same first and last character
+- If a word is found that does not appear in the wordlist the implementation must report this error and stop decoding
 - Calculating a CRC checksum using the previously defined parameters over `i` should return a remainder of zero
 - If the checksum does not return zero this error must be reported and the decoding operation stopped
 - The last byte of `i` is removed to obtain the decoded binary data `b`
