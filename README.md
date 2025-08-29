@@ -62,11 +62,10 @@ These tests were performed with the expected error scenarios of two adjacent byt
 - A CRC checksum `c` with the previously defined parameters is calculated over `b`
 - `c` is then appended to `b` to obtain the intermediate binary data `i`
 - An output string `s` is constructed.
-- For each byte in the intermediate binary data `i`, 
-the corresponding word from the wordlist is added to `s`
+- For each byte in `i`, the corresponding word from the wordlist is added to `s`
 - The words should be output in all lowercase.
 - Each word, except the last one, is immediately followed by a Hyphen-Minus character (-)
-- The output string `s` is returned as the output
+- `s` is returned as the output
 
 ### Conversion from pricklybird format
 
@@ -84,7 +83,7 @@ according to the wordlist for each word in `l`
 - Calculating a CRC checksum using the previously defined parameters over `i` should return a remainder of zero
 - If the checksum remainder does not equal zero an error must be returned
 - The last byte of `i` is removed to obtain the decoded binary data `b`
-- The decoded binary data `b` is returned as the output
+- `b` is returned as the output
 
 ### Word lookup hash table
 
