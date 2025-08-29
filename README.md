@@ -8,7 +8,7 @@ Parameters are subject to change until a proper version is defined.
 
 ## Overview
 
-Binary data like encryption keys, wallet addresses, and hash digests are most 
+Binary data blocks like encryption keys, wallet addresses, and hash digests are most 
 often represented using hexadecimal when humans are supposed to interact with them. 
 Large strings of hexadecimal are, however, almost impossible to remember, 
 annoying and error-prone to write on paper and hard to communicate to another person orally, 
@@ -69,9 +69,9 @@ These tests were performed with the expected error scenarios of two adjacent byt
 
 ### Conversion from pricklybird format
 
-- The pricklybird input string `s` must be a valid UTF-8 string containing only ASCII compatible characters.
+- The pricklybird input string `s` must be a valid UTF-8 string.
 - If `s` is empty the implementation must return an error.
-- Whitespace is trimmed from the beginning and end of `s` to get the shortened input string `u`
+- ASCII whitespace is trimmed from the beginning and end of `s` to get the shortened input string `u`, the implementaion may also trim non ASCII whitespace as defined by the unicode standard.
 - If `u` contains any character that is not a Hyphen-Minus or a letter from A-Z (case-insensitive) the input is considered invalid and an error must be returned
 - `u` is split into a list of words `l` at every Hyphen-Minus character (-)
 - If `l` is shorter than two words the input is invalid, since with checksum attached, every
@@ -95,7 +95,7 @@ In python code:
 ```
 def lookup_index(word): return letter_value(word[0]) + letter_value(word[-1]) * 26
 ```
-Example: For the word `"turf"`, first letter `t` (value 19), last letter `f` (value 5). The index is `19 + (5 * 26) = 149`.
+Example: For the word `"turf"`, first letter `t` (value 19), last letter `f` (value 5). The index is `19 + 5 * 26 = 149`.
 
 The highest value returned by this function for all words in the wordlist is 655, and the lowest is 0.
 For input with invalid words the highest value becomes 675 with a word that has `z` as its first and last letter, since `25 + 25 * 26 = 675`. 
@@ -120,9 +120,9 @@ A functioning implementation should be able to convert these bytes and pricklybi
 The following test vectors should raise decoding errors in a functioning implementation.
 
 | Pricklybird                | Reason                        |
-| :------------------------- | :-----------------------------|
-| `®¿𐍅�-orca`                | Contains non ASCII characters |
-| `gäsp-risk-king-orca-husk` | Contains non ASCII characters |
+| :------------------------- | :---------------------------- |
+| `®¿𐍅�-orca`                | Contains invalid characters   |
+| `gäsp-risk-king-orca-husk` | Contains invalid characters   |
 | `-risk-king-orca-husk`     | Incorrectly formatted         |
 | `flea- \t \t-full`         | Contains internal whitespace  |
 | `flea-aaa\0-full`          | Contains null byte            |
