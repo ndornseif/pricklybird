@@ -356,8 +356,8 @@ mod pricklybird_tests {
         for (edge_case_input, error_reason) in edge_cases {
             assert!(
                 convert_from_pricklybird(edge_case_input).is_err(),
-                "Converter did not return error for: {}",
-                error_reason
+                "Converter did not return error for: {} ({})",
+                error_reason, edge_case_input
             );
         }
     }
