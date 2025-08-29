@@ -118,7 +118,7 @@ A functioning implementation should be able to convert these bytes and pricklybi
 | `0x0000000000` | `acid-acid-acid-acid-acid-acid` |
 | `0xFFFFFFFFFF` | `zone-zone-zone-zone-zone-sand` |
 
-The following test vectors should raise decoding errors in a functioning implementation:
+The following test vectors should raise decoding errors in a functioning implementation.
 
 | Pricklybird                | Reason                        |
 | :------------------------- | :-----------------------------|
