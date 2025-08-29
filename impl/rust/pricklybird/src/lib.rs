@@ -116,11 +116,6 @@ pub fn words_to_bytes(words: &Vec<&str>) -> Result<Vec<u8>> {
     let mut bytevector = Vec::<u8>::with_capacity(words.len());
 
     for &word in words {
-        // if !word.is_ascii() {
-        //     return Err(DecodeError::General(
-        //         "Input must only contain ASCII compatible UTF-8.".into(),
-        //     ));
-        // }
         let word_lower = word.to_lowercase();
         let word_bytes = word_lower.as_bytes();
         if word_bytes.len() != 4 {
