@@ -54,8 +54,8 @@ type Result<T> = std::result::Result<T, DecodeError>;
 ///
 /// # CRC parameters
 /// - Output width of 8 bits
-/// - Division using the polynominal `0x1D`
-/// - An inital value of zero
+/// - Division using the polynomial `0x1D`
+/// - An initial value of zero
 /// - No input or output reflection
 /// - No XOR operation on the output
 /// - Remainder after division of data with correct CRC appended is zero
@@ -115,12 +115,12 @@ pub fn bytes_to_words(data: &[u8]) -> Vec<[u8; 4]> {
 pub fn words_to_bytes(words: &Vec<&str>) -> Result<Vec<u8>> {
     let mut bytevector = Vec::<u8>::with_capacity(words.len());
 
-    for word in words {
-        if !word.is_ascii() {
-            return Err(DecodeError::General(
-                "Input must only contain ASCII compatible UTF-8.".into(),
-            ));
-        }
+    for &word in words {
+        // if !word.is_ascii() {
+        //     return Err(DecodeError::General(
+        //         "Input must only contain ASCII compatible UTF-8.".into(),
+        //     ));
+        // }
         let word_lower = word.to_lowercase();
         let word_bytes = word_lower.as_bytes();
         if word_bytes.len() != 4 {
@@ -185,7 +185,7 @@ pub fn convert_to_pricklybird(data: &[u8]) -> String {
 /// assert_eq!(data, [0x42u8, 0x43]);
 /// ```
 pub fn convert_from_pricklybird(words: &str) -> Result<Vec<u8>> {
-    let word_vec: Vec<&str> = words.split('-').collect();
+    let word_vec: Vec<&str> = words.trim().split('-').collect();
 
     if word_vec.len() < 2 {
         return Err(DecodeError::General(
@@ -210,23 +210,36 @@ mod pricklybird_tests {
     const TEST_DATA_SEED: u128 = 1;
     /// How many byes of test data to use for conversion tests.
     const TEST_DATA_BYTES: usize = 4096;
+    /// Pseudorandom data used to test conversion functions.
+    const TEST_DATA: [u8; TEST_DATA_BYTES] = generate_test_data(TEST_DATA_SEED);
 
     /// Generates pseudorandom test data using the Lehmer64 LCG.
     #[allow(clippy::cast_possible_truncation)]
-    fn generate_test_data(seed: u128) -> Vec<u8> {
+    const fn generate_test_data(seed: u128) -> [u8; TEST_DATA_BYTES] {
         const MULTIPLIER: u128 = 0xDA942042E4DD58B5;
         const WARMUP_ITERATIONS: usize = 128;
         let mut state = seed;
         // Mix up the state a little to compensate for potentialy small seed.
-        for _ in 0..WARMUP_ITERATIONS {
+        let mut i: usize = 0;
+        while i < WARMUP_ITERATIONS {
             state = state.wrapping_mul(MULTIPLIER);
+            i += 1;
         }
 
-        let mut result = Vec::<u8>::with_capacity(TEST_DATA_BYTES);
-        for _ in 0..(TEST_DATA_BYTES / 8) {
+        let mut j: usize = 0;
+        let mut result = [0u8; TEST_DATA_BYTES];
+        while j < TEST_DATA_BYTES {
             state = state.wrapping_mul(MULTIPLIER);
             let random_val = (state >> 64) as u64;
-            result.extend_from_slice(&random_val.to_le_bytes());
+            result[j] = random_val as u8;
+            result[j + 1] = (random_val >> 8) as u8;
+            result[j + 2] = (random_val >> 16) as u8;
+            result[j + 3] = (random_val >> 24) as u8;
+            result[j + 4] = (random_val >> 32) as u8;
+            result[j + 5] = (random_val >> 40) as u8;
+            result[j + 6] = (random_val >> 48) as u8;
+            result[j + 7] = (random_val >> 56) as u8;
+            j += 8;
         }
         result
     }
@@ -267,11 +280,11 @@ mod pricklybird_tests {
     /// Test conversion to and from pricklybird on pseudorandom test data.
     #[test]
     fn test_simple_conversion() {
-        let test_data = generate_test_data(TEST_DATA_SEED);
-        let coded_words = convert_to_pricklybird(&test_data);
+        let coded_words = convert_to_pricklybird(&TEST_DATA);
         let decoded_data = convert_from_pricklybird(&coded_words).unwrap();
         assert_eq!(
-            test_data, decoded_data,
+            TEST_DATA.to_vec(),
+            decoded_data,
             "Converter did not correctly endcode or decode data."
         );
     }
@@ -289,11 +302,11 @@ mod pricklybird_tests {
     /// Test that replacing a pricklybird word is detected using the CRC-8.
     #[test]
     fn test_error_detection_bit_flip() {
-        let mut test_data = generate_test_data(TEST_DATA_SEED);
-        let coded_words = convert_to_pricklybird(&test_data);
-        test_data[0] ^= 1;
+        let coded_words = convert_to_pricklybird(&TEST_DATA);
+        let mut corrupt_data = TEST_DATA;
+        corrupt_data[0] ^= 1;
         let incorrect_word =
-            String::from_utf8(bytes_to_words(&test_data[0..1])[0].to_vec()).unwrap();
+            String::from_utf8(bytes_to_words(&corrupt_data[0..1])[0].to_vec()).unwrap();
         let incorrect_coded_words = format!("{}{}", &incorrect_word[..4], &coded_words[4..]);
         assert!(
             convert_from_pricklybird(&incorrect_coded_words).is_err(),
@@ -304,8 +317,7 @@ mod pricklybird_tests {
     /// Check that swapping two adjacent words is detected using the CRC-8.
     #[test]
     fn test_error_detection_adjacent_swap() {
-        let test_data = generate_test_data(TEST_DATA_SEED);
-        let coded_words = convert_to_pricklybird(&test_data);
+        let coded_words = convert_to_pricklybird(&TEST_DATA);
         let mut word_vec: Vec<&str> = coded_words.split('-').collect();
         word_vec.swap(0, 1);
         let swapped_coded_words = word_vec.join("-");
@@ -318,16 +330,30 @@ mod pricklybird_tests {
         );
     }
 
+    /// Check that whitespace is correctly trimmed.
+    #[test]
+    fn test_whitespace_trim() {
+        assert_eq!(
+            vec![0x42u8, 0x43],
+            convert_from_pricklybird(" \t\n\r\x0b\x0c flea-flux-full \t\n\r\x0b\x0c ").unwrap()
+        );
+    }
+
     /// Check that edge cases result in the correct errors.
     #[test]
     fn test_unusual_input() {
         let edge_cases = vec![
             ("", "empty input"),
             ("orca", "input to short"),
-            ("®¿", "non ASCII iput."),
-            ("gäsp-risk-king-orca-husk", "non ASCII iput."),
-            ("-risk-king-orca-husk", "incorrectly formated input"),
+            ("®¿𐍅�-orca", "non ASCII iput"),
+            ("gäsp-risk-king-orca-husk", "non ASCII iput"),
+            ("-risk-king-orca-husk", "incorrectly formatted input"),
             ("gasp-rock-king-orca-husk", "incorrect word in input"),
+            ("flea- \t \t-full", "whitespace in input"),
+            ("flea-aaa\0-full", "null bytes in input"),
+            ("flea-\0aaa-full", "null bytes in input"),
+            ("flea-\x7faaa-full", "ASCII control character in input"),
+            ("flea-aaa\x7f-full", "ASCII control character in input"),
             // Check that no index out of bound error is thrown when the highest
             // possible value is used to index the hash table.
             ("zzzz-king", "incorrect word in input"),
@@ -335,7 +361,7 @@ mod pricklybird_tests {
         for (edge_case_input, error_reason) in edge_cases {
             assert!(
                 convert_from_pricklybird(edge_case_input).is_err(),
-                "{}",
+                "Converter did not return error for: {}",
                 error_reason
             );
         }
