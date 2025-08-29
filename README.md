@@ -52,7 +52,7 @@ The CRC to be used shall be defined as follows:
 - Check value of the ASCII string `"123456789"` as input is `0x37`
 
 In testing this configuration showed an error detection rate close to the maximum
-value `1 - 1 / 256 ≈ 99.6%` that can be achieved for an 8-bit checksum. 
+value `255 / 256 ≈ 99.6%` that can be achieved for an 8-bit checksum. 
 These tests were performed with the expected error scenarios of two adjacent bytes being swapped and a byte being replaced by a random incorrect one. 
 
 ### Conversion to pricklybird format
