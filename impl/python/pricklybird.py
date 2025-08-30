@@ -96,7 +96,7 @@ class CRCError(DecodeError):
 
 
 def calculate_crc8(data: BytesLike) -> bytes:
-    """Calculate a CRC-8 based on the precomputed table.
+    """Calculate the CRC-8 used by pricklybird based on a precomputed table.
 
     # CRC parameters
     - Output width of 8 bits
@@ -121,7 +121,7 @@ def calculate_crc8(data: BytesLike) -> bytes:
 
 
 def bytes_to_words(data: BytesLike) -> list[str]:
-    """Return a list of strings with each input byte mapped to pricklybird word.
+    """Return a vector of words with each input byte mapped to the matching pricklybird word.
 
     # Usage
     >>> from pricklybird import bytes_to_words
