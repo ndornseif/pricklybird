@@ -92,7 +92,7 @@ trivially constructed. The reference implementations assign a numeric value to e
 in order. Meaning `A` gets assigned the value `0`, `B` the value `1`, continuing in this pattern until `Z` that gets assigned `25`.
 An index into a lookup table is calculated by adding the letter value of the words first letter to the value of the last letter multiplied by 26.  
 In python code:   
-```
+```python
 def lookup_index(word): return letter_value(word[0]) + letter_value(word[-1]) * 26
 ```
 Example: For the word `"turf"`, first letter `t` (value 19), last letter `f` (value 5). The index is `19 + 5 * 26 = 149`.
@@ -135,6 +135,23 @@ in the `impl` directory:
 
 - Python
 - Rust
+
+### Command line utility
+A command line utility for conversion is provided in the rust implementation.
+Input is read from stdin and output written to stdout.
+
+By default conversion from pricklybird to bytes is attempted.
+This can be explicitly set using the `-b` flag.
+```bash
+% echo "flea-flux-full" | pricklybird -b | xxd -ps
+4243
+```
+
+To convert bytes to pricklybird use the `-p` flag.
+```bash
+% echo "4243" | xxd -r -p | pricklybird -p
+flea-flux-full
+```
 
 ## License
 
