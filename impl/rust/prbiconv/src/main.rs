@@ -8,10 +8,26 @@
 
 //! Convert binary data into a human-friendly format.
 //!
-//! This is the pricklybird command line tool.
+//! This is the pricklybird command line tool `prbiconv`.
+//!
+//! # Usage
+//! We use `xxd` in these examples to convert raw binary to hexadecimal.
+//!
+//! By default conversion from pricklybird to bytes is attempted.
+//! This can be explicitly set using the `-b` flag.
+//! ```bash
+//! % echo "flea-flux-full" | prbiconv -b | xxd -ps
+//! 4243
+//! ```
+//! 
+//! To convert bytes to pricklybird use the `-p` flag.
+//! ```bash
+//! % echo "4243" | xxd -r -p | prbiconv -p
+//! flea-flux-full
+//! ```
 
 use std::fmt;
-use std::io::{self, Read as _, Write as _};
+use std::io::{self, Read, Write};
 
 use clap::Parser;
 
@@ -74,11 +90,11 @@ struct Cli {
     convert_to: bool,
 }
 
-/// Read from stdin and output to stdout.
-/// By default conversion from a pricklybird string to bytes is attemped.
-/// Setting the `-c` flag will instead convert bytes to a pricklybird string.
-pub fn main() -> Result<(), AppError> {
-    let cli = Cli::parse();
+
+/// Read from `input` and write to `output`.
+/// Attemps conversion from pricklybird string to bytes by default.
+/// Setting the `-p` flag will instead convert bytes to a pricklybird string.
+fn convert(cli: &Cli, mut input: impl Read, mut output: impl Write) -> Result<(), AppError>{
     if cli.convert_to && cli.convert_from {
         return Err(AppError::ArgumentError(
             "Can not convert from and to pricklybird at the same time.".to_owned(),
@@ -86,16 +102,25 @@ pub fn main() -> Result<(), AppError> {
     }
     if cli.convert_to {
         let mut buffer = Vec::<u8>::new();
-        let _ = io::stdin().read_to_end(&mut buffer)?;
-        let output = convert_to_pricklybird(&buffer);
-        print!("{}", &output);
-        io::stdout().flush()?;
+        let _ = input.read_to_end(&mut buffer)?;
+        let output_words = convert_to_pricklybird(&buffer);
+        write!(output, "{}", &output_words)?;
+        output.flush()?;
     } else {
         let mut buffer = String::new();
-        let _ = io::stdin().read_to_string(&mut buffer)?;
-        let output = convert_from_pricklybird(&buffer)?;
-        io::stdout().write_all(&output)?;
-        io::stdout().flush()?;
+        let _ = input.read_to_string(&mut buffer)?;
+        let output_bytes = convert_from_pricklybird(&buffer)?;
+        output.write_all(&output_bytes)?;
+        output.flush()?;
     }
+    Ok(())
+
+}
+
+/// Read from stdin and output to stdout.
+/// Pass the streams to the `convert` function.
+pub fn main() -> Result<(), AppError> {
+    let cli = Cli::parse();
+    convert(&cli, io::stdin(), io::stdout())?;
     Ok(())
 }

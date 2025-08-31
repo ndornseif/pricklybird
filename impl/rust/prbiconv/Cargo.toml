@@ -1,5 +1,5 @@
 [package]
-name = "pricklybird"
+name = "prbiconv"
 version = "1.0.0"
 edition = "2024"
 description = "Command line tool to convert between binary data and pricklybird strings."
