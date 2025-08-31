@@ -131,7 +131,7 @@ The following implementations are currently available:
 - A python library to perform conversion: [`pypricklybird`](https://github.com/ndornseif/pypricklybird)
 - A rust implementaion `rspricklybird` made up of:
     - A rust library to perform conversion: [`pricklybirdlib`](https://github.com/ndornseif/rspricklybird)
-    - A command line utility wrapping the library: `prbiconv`(https://github.com/ndornseif/rspricklybird)
+    - A command line utility wrapping the library: [`prbiconv`](https://github.com/ndornseif/rspricklybird)
 
 
 ## License
