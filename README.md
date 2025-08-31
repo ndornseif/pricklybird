@@ -121,7 +121,7 @@ The following test vectors should raise decoding errors in a functioning impleme
 
 | Pricklybird                | Reason                        |
 | :------------------------- | :---------------------------- |
-| `®¿𐍅�-orca`                | Contains invalid characters   |
+| `a®¿a-orca`                | Contains invalid characters   |
 | `gäsp-risk-king-orca-husk` | Contains invalid characters   |
 | `-risk-king-orca-husk`     | Incorrectly formatted         |
 | `flea- \t \t-full`         | Contains internal whitespace  |
