@@ -1,11 +1,6 @@
 # pricklybird
 Convert binary data into a human-friendly format.
 
-## Notice
-
-These specifications describe a development version.
-Parameters are subject to change until a proper version is defined.
-
 ## Overview
 
 Binary data blocks like encryption keys, wallet addresses, and hash digests are most 
@@ -33,7 +28,7 @@ continuing this pattern until the 256th word, which corresponds to `0xFF`.
 
 ## Specification
 
-This specification applies to version `dev` of pricklybird.  
+This specification describes version `v1` of the pricklybird format.  
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
 "OPTIONAL" in this document are to be interpreted as described in
@@ -99,6 +94,7 @@ Example: For the word `"turf"`, first letter `t` (value 19), last letter `f` (va
 
 The highest value returned by this function for all words in the wordlist is 655, and the lowest is 0.
 For input with invalid words the highest value becomes 675 with a word that has `z` as its first and last letter, since `25 + 25 * 26 = 675`. 
+
 Meaning a 656 entry lookup array that maps the hash values to the byte values can be constructed,
 to obtain the byte value given the first and last letter of a word. The implementation must still check that the other two letters actually match the word 
 that is assigned to the recovered byte value.
@@ -130,30 +126,14 @@ The following test vectors should raise decoding errors in a functioning impleme
 
 ## Implementations
 
-Reference implementations in the following programming languages are provided:
+The following implementations are currently available:
 
-- A python library to perform conversion: [pyrpicklybird](https://github.com/ndornseif/pypricklybird)
-- A rust library to perform conversion: `pricklybirdlib`
-- A rust command line utility wrapping the rust library: `prbiconv`
+- A python library to perform conversion: [`pypricklybird`](https://github.com/ndornseif/pypricklybird)
+- A rust implementaion `rspricklybird` made up of:
+    - A rust library to perform conversion: [`pricklybirdlib`](https://github.com/ndornseif/rspricklybird)
+    - A command line utility wrapping the library: `prbiconv`(https://github.com/ndornseif/rspricklybird)
 
-
-### Command line utility
-`prbiconv`, a command line utility for conversion is provided in the rust implementation.
-Input is read from stdin and output written to stdout.
-
-By default conversion from pricklybird to bytes is attempted.
-This can be explicitly set using the `-b` flag.
-```console
-% echo "flea-flux-full" | prbiconv -b | xxd -ps
-4243
-```
-
-To convert bytes to pricklybird use the `-p` flag.
-```console
-% echo "4243" | xxd -r -p | prbiconv -p
-flea-flux-full
-```
 
 ## License
 
-This project is licensed under the MIT License.
+This repository is distributed under the terms of the [CC0-1.0](https://spdx.org/licenses/CC0-1.0.html) license.
