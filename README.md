@@ -130,26 +130,27 @@ The following test vectors should raise decoding errors in a functioning impleme
 
 ## Implementations
 
-Reference implementations in the following programming languages can be found
-in the `impl` directory:
+Reference implementations in the following programming languages are provided:
 
-- Python
-- Rust
+- A python library to perform conversion: [pyrpicklybird](https://github.com/ndornseif/pypricklybird)
+- A rust library to perform conversion: `pricklybirdlib`
+- A rust command line utility wrapping the rust library: `prbiconv`
+
 
 ### Command line utility
-A command line utility for conversion is provided in the rust implementation.
+`prbiconv`, a command line utility for conversion is provided in the rust implementation.
 Input is read from stdin and output written to stdout.
 
 By default conversion from pricklybird to bytes is attempted.
 This can be explicitly set using the `-b` flag.
-```bash
-% echo "flea-flux-full" | pricklybird -b | xxd -ps
+```console
+% echo "flea-flux-full" | prbiconv -b | xxd -ps
 4243
 ```
 
 To convert bytes to pricklybird use the `-p` flag.
-```bash
-% echo "4243" | xxd -r -p | pricklybird -p
+```console
+% echo "4243" | xxd -r -p | prbiconv -p
 flea-flux-full
 ```
 
