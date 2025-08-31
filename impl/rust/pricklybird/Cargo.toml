@@ -5,7 +5,7 @@ edition = "2024"
 description = "Command line tool to convert between binary data and pricklybird strings."
 license = "MIT"
 repository = "https://github.com/ndornseif/pricklybird/"
-readme = false
+readme = "../../../README.md"
 keywords = ["encoding", "binary-data", "standard", "cli"]
 categories = ["command-line-utilities", "encoding", "parsing"]
 

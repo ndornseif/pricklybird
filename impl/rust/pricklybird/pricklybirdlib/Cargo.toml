@@ -5,10 +5,9 @@ edition = "2024"
 description = "Library to convert between binary data and pricklybird strings."
 license = "MIT"
 repository = "https://github.com/ndornseif/pricklybird/"
-readme = false
+readme = "../../../../README.md"
 keywords = ["encoding", "binary-data", "standard"]
 categories = ["encoding", "parsing"]
-
 
 [lints.rust]
 forgetting_references = "warn"

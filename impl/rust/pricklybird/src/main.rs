@@ -79,7 +79,6 @@ struct Cli {
 /// Setting the `-c` flag will instead convert bytes to a pricklybird string.
 pub fn main() -> Result<(), AppError> {
     let cli = Cli::parse();
-    // Check if both flags are set
     if cli.convert_to && cli.convert_from {
         return Err(AppError::ArgumentError(
             "Can not convert from and to pricklybird at the same time.".to_owned(),
@@ -96,6 +95,7 @@ pub fn main() -> Result<(), AppError> {
         let _ = io::stdin().read_to_string(&mut buffer)?;
         let output = convert_from_pricklybird(&buffer)?;
         io::stdout().write_all(&output)?;
+        io::stdout().flush()?;
     }
     Ok(())
 }

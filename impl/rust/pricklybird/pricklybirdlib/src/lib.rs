@@ -77,8 +77,9 @@ pub fn calculate_crc8(data: &[u8]) -> u8 {
     crc
 }
 
-/// Return a vector of words with each input byte mapped to the matching pricklybird word.
+/// Convert bytearray to list of pricklybird words.
 ///
+/// Return a list of words with each input byte mapped to the matching pricklybird word.
 /// The words are encoded as a vec of four byte arrays containing ASCII compatible UTF-8.
 ///
 /// # Usage
@@ -259,7 +260,7 @@ mod pricklybird_tests {
             assert_eq!(
                 words,
                 convert_to_pricklybird(&data),
-                "Converter failed to convert {:?} test vector to pricklybird",
+                "Failed to convert {:?} test vector to pricklybird",
                 data
             );
 
@@ -267,7 +268,7 @@ mod pricklybird_tests {
             assert_eq!(
                 data,
                 convert_from_pricklybird(words).unwrap(),
-                "Converter failed to convert {} test vector to bytes",
+                "Failed to convert {} test vector to bytes",
                 words
             );
         }
@@ -341,7 +342,7 @@ mod pricklybird_tests {
         let edge_cases = vec![
             ("", "empty input"),
             ("orca", "input to short"),
-            ("®¿𐍅�-orca", "non ASCII iput"),
+            ("a®¿a-orca", "non ASCII iput"),
             ("gäsp-risk-king-orca-husk", "non ASCII iput"),
             ("-risk-king-orca-husk", "incorrectly formatted input"),
             ("gasp-rock-king-orca-husk", "incorrect word in input"),
@@ -386,7 +387,7 @@ mod crc8_tests {
         assert_eq!(0, result, "CRC-8 of empty data should be 0.");
     }
 
-    /// Check that CRC-8 of single byte is equal to the precomputed table value.
+    /// Check that CRC-8 of a byte is equal to the matching table value.
     #[test]
     fn test_table_lookup() {
         let test_data = &[0x42_u8];
@@ -398,7 +399,7 @@ mod crc8_tests {
         );
     }
 
-    /// Check that data with appended correct CRC-8 has a CRC remainder of zero.
+    /// Check that data with appended correct CRC-8 has a remainder of zero.
     #[test]
     fn test_with_appended_crc() {
         let mut test_data = b"Test data".to_vec();
