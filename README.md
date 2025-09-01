@@ -4,13 +4,14 @@ Convert binary data into a human-friendly format.
 ## Overview
 
 Binary data blocks like encryption keys, wallet addresses, and hash digests are most 
-often represented using hexadecimal when humans are supposed to interact with them. 
+often represented using hexadecimal when humans are supposed to interact with them.  
 Large strings of hexadecimal are, however, almost impossible to remember, 
 annoying and error-prone to write on paper and hard to communicate to another person orally, 
-over the phone for example.   
+over the phone for example.
+
 `pricklybird` is a method for conversion of arbitrary binary data into more
-human-friendly words, where each word represents a single byte. A CRC-8 checksum is 
-attached to allow the detection of errors during decoding.  
+human-friendly words, where each word represents a single byte.  
+A CRC-8 checksum is attached to allow the detection of errors during decoding.    
 `0xDEADBEEF` becomes `turf-port-rust-warn-void`, for example.
 
 ## Wordlist
