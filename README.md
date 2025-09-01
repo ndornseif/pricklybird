@@ -133,7 +133,6 @@ The following implementations are currently available:
     - A rust library to perform conversion: [`pricklybirdlib`](https://github.com/ndornseif/rspricklybird)
     - A command line utility wrapping the library: [`prbiconv`](https://github.com/ndornseif/rspricklybird)
 
-
 ## License
 
 This repository is distributed under the terms of the [CC0-1.0](https://spdx.org/licenses/CC0-1.0.html) license.
