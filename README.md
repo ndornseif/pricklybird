@@ -129,10 +129,10 @@ The following test vectors should raise decoding errors in a functioning impleme
 
 The following implementations are currently available:
 
-- A python library to perform conversion: [`pypricklybird`](https://github.com/ndornseif/pypricklybird)
+- A python library to perform conversion called `pypricklybird` [github](https://github.com/ndornseif/pypricklybird) [pypi](https://pypi.org/project/pypricklybird/).
 - A rust implementaion `rspricklybird` made up of:
-    - A rust library to perform conversion: [`pricklybirdlib`](https://github.com/ndornseif/rspricklybird)
-    - A command line utility wrapping the library: [`prbiconv`](https://github.com/ndornseif/rspricklybird)
+    - A rust library to perform conversion: `pricklybirdlib` [github](https://github.com/ndornseif/rspricklybird/tree/main/pricklybirdlib) [crates.io](https://crates.io/crates/pricklybirdlib).
+    - A command line utility wrapping the library: `prbiconv` [github](https://github.com/ndornseif/rspricklybird)
 
 ## License
 
